@@ -129,6 +129,6 @@ Este repositorio documenta mi camino de Data Engineer con experiencia corporativ
 ## 📞 Contacto
 
 - GitHub: [@cpalmadev1](https://github.com/cpalmadev1)
-- LinkedIn: [www.linkedin.com/in/cpalmadev]
-- Email: [cpalmadev@gmail.com]
+- LinkedIn: [César Palma](https://www.linkedin.com/in/cpalmadev)
+- Email: cpalmadev@gmail.com
 
