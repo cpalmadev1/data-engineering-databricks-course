@@ -6,10 +6,10 @@
 - Medallion Architecture
 - Batch vs Streaming
 
-## Entregables
-- [ ] Documento de arquitecturas (3-5 páginas)
-- [ ] Proyecto de diseño e-commerce
-- [ ] Auto-evaluación
+## 📚 Documentación
 
-## Status
-🔄 En progreso
+- **[Arquitecturas de Datos Modernas](./docs/arquitecturas-datos-modernas.md)** ✅
+  - Data Warehouse, Data Lake, Data Lakehouse
+  - Medallion Architecture (Bronze/Silver/Gold)
+  - Comparaciones y casos de uso
+
