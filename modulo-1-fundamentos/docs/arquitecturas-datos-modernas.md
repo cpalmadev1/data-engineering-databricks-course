@@ -223,7 +223,7 @@ Con Lakehouse tienes **barato Y ordenado**. 🎯
 Fuente: Databricks
 
     ↑ Lo mejor de ambos mundos
-```
+
 # SECCIÓN 2: Medallion Architecture (Bronze → Silver → Gold)
 
 ## ¿Qué es Medallion Architecture?
@@ -532,37 +532,10 @@ expectation_suite = df.expect_column_values_to_be_between("monto", 0, 10000000)
 expectation_suite = df.expect_column_values_to_be_in_set("estado", ["completado", "cancelado"])
 ```
 
----
-
-## 🎯 Caso Real: Mi experiencia con Medallion Architecture
-
-[Aquí puedes agregar un párrafo sobre tu experiencia en Cencosud]
-
-Ejemplo:
-```
-En Cencosud, implementamos una arquitectura similar (aunque no 
-la llamábamos "Medallion" en ese momento). 
-
-Teníamos:
-- **Zona Raw:** Donde llegaban los datos de los POS de todas las tiendas
-- **Zona Procesada:** Datos limpios y consolidados
-- **Zona Analytics:** Tablas agregadas para dashboards
-
-El mayor desafío era mantener la calidad en la zona Raw - a veces 
-entraban datos corruptos que rompían los pipelines downstream.
-
-Si lo diseñara ahora, usaría:
-1. Delta Lake en todas las capas (para versionado y rollback)
-2. Data quality checks automáticos antes de pasar Bronze → Silver
-3. Alertas cuando la calidad de datos baja de cierto threshold
-4. Unity Catalog para gobernanza y lineage
-```
-
----
-
 ## 📐 Diagrama Medallion Architecture
 
-[Incluye el diagrama que compartiste de Databricks]
+<img width="1200" height="619" alt="image" src="https://github.com/user-attachments/assets/0db8bfeb-4aaf-4dee-8873-a366b525a700" />
+
 
 **Fuente:** Databricks - Data Lakehouse Architecture
 
