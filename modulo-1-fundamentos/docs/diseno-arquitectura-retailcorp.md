@@ -221,7 +221,7 @@ Basado en este análisis:
 | 1 | Dashboard Ejecutivo RT | < 1 min | Streaming | CEO necesita ver ventas actuales |
 | 2 | Inventario Diario | 7 AM | Batch | Datos pueden esperar noche |
 | 3 | Reportes Mensuales | Día 1 mes | Batch | No crítico tiempo real |
-| 4 | Recomendaciones ML | < 1 seg lectura | Batch entrenamiento | Modelo pre-calculado |
+| 4 | Recomendaciones ML | < 1 seg lectura | Batch streaming | Modelo pre-calculado |
 | 5 | Detección Fraude | < 2 seg | Streaming | Crítico actuar inmediato |
 
 ---
