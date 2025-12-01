@@ -61,8 +61,6 @@ RetailCorp opera:
 
 ## 3. Análisis de Requerimientos
 
-## 3. Análisis de Requerimientos
-
 ### 3.1 Metodología de Análisis
 
 Para cada requerimiento se evaluó:
