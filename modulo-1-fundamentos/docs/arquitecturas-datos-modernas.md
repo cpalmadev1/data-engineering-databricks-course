@@ -543,3 +543,299 @@ El diagrama muestra claramente cómo:
 - Bronze acepta TODO tipo de datos
 - Silver limpia y valida
 - Gold agrega y modela para consumo empresarial
+- 
+
+# SECCIÓN 3: Batch vs Streaming
+
+## La Decisión Fundamental
+
+Al diseñar un sistema de procesamiento de datos, una de las primeras decisiones 
+que debemos tomar es: **¿Batch o Streaming?**
+
+La respuesta depende de **qué tan rápido necesitas la información**.
+
+---
+
+## Batch Processing (Procesamiento por Lotes)
+
+### ¿Qué es?
+
+Batch processing es el procesamiento de datos en **bloques grandes** en 
+**intervalos programados**. Los datos se acumulan durante un período de tiempo 
+y luego se procesan todos juntos.
+
+### Características Clave:
+
+- **Ejecución programada:** Se ejecuta en horarios específicos (como un cron job)
+- **Procesa datos históricos:** Trabaja con datos del pasado (ayer, semana pasada, mes anterior)
+- **Alto volumen por ejecución:** Procesa muchos datos de una sola vez
+- **Latencia aceptable:** Los resultados pueden esperar horas o días
+
+### Ejemplo Real - Retail:
+```
+Escenario: Reporte de ventas diarias
+
+┌─────────────────────────────────────┐
+│  Durante el día (00:00 - 23:59)     │
+│  - Las ventas se van acumulando     │
+│  - Se guardan en Bronze (raw)       │
+│  - NO se procesan todavía           │
+└─────────────────────────────────────┘
+              ↓
+        A las 01:00 AM
+              ↓
+┌─────────────────────────────────────┐
+│  Job Batch programado se ejecuta    │
+│  1. Lee TODAS las ventas del día    │
+│  2. Limpia y valida (Bronze→Silver) │
+│  3. Agrega por tienda (Silver→Gold) │
+│  4. Actualiza dashboard             │
+└─────────────────────────────────────┘
+              ↓
+        Dashboard listo a las 01:30 AM
+```
+
+**Ventajas:**
+- ✅ **Simple de implementar:** Un script que corre una vez al día
+- ✅ **Económico:** Solo usa recursos cuando se ejecuta (no 24/7)
+- ✅ **Eficiente para grandes volúmenes:** Procesa millones de registros de una vez
+- ✅ **Fácil de debuggear:** Si algo falla, puedes ver todo el lote
+- ✅ **Reproducible:** Puedes re-ejecutar el mismo lote si hay errores
+
+**Desventajas:**
+- ❌ **Latencia alta:** Los datos pueden tener horas de retraso
+- ❌ **No apto para tiempo real:** Si necesitas alertas inmediatas, no sirve
+- ❌ **Todo o nada:** Si falla, tienes que reprocesar todo el lote
+
+### Casos de Uso Típicos:
+
+- 📊 **Reportes diarios/semanales/mensuales**
+  - Ventas totales del día anterior
+  - KPIs mensuales para ejecutivos
+  
+- 📈 **ETL tradicional**
+  - Mover datos de BD transaccional a Data Warehouse
+  - Consolidar datos de múltiples fuentes
+  
+- 🧮 **Cálculos pesados**
+  - Entrenar modelos de Machine Learning
+  - Análisis histórico profundo
+  
+- 💾 **Backups y archivos**
+  - Exportar datos para auditoría
+  - Generar snapshots diarios
+
+### Herramientas Comunes:
+
+- **Azure Databricks Jobs**
+- **Azure Data Factory** (orquestación de pipelines)
+- **Apache Spark Batch**
+- **Cron jobs + Scripts Python**
+
+---
+
+## Streaming Processing (Procesamiento Continuo)
+
+### ¿Qué es?
+
+Streaming processing es el procesamiento **continuo y en tiempo real** de datos 
+a medida que llegan. Cada evento se procesa inmediatamente (o en ventanas de 
+pocos segundos).
+
+### Características Clave:
+
+- **Ejecución continua 24/7:** Siempre está corriendo, esperando datos
+- **Procesa eventos en vivo:** Datos que están ocurriendo AHORA
+- **Bajo volumen por evento:** Procesa registros uno a uno (o micro-batches)
+- **Latencia muy baja:** Segundos o milisegundos
+
+### Ejemplo Real - Detección de Fraude:
+```
+Usuario hace compra con tarjeta de crédito
+              ↓ (< 1 segundo)
+┌─────────────────────────────────────┐
+│  Evento llega al sistema streaming  │
+│  - Monto: $5,000                    │
+│  - Ubicación: País extranjero       │
+│  - Horario: 3 AM                    │
+└─────────────────────────────────────┘
+              ↓ (inmediato)
+┌─────────────────────────────────────┐
+│  Sistema analiza en tiempo real     │
+│  - Compara con patrón usual         │
+│  - Detecta: ubicación inusual       │
+│  - Detecta: monto alto              │
+│  - DECISIÓN: Posible fraude         │
+└─────────────────────────────────────┘
+              ↓ (2-3 segundos)
+┌─────────────────────────────────────┐
+│  ACCIÓN INMEDIATA                   │
+│  - Bloquea la transacción           │
+│  - Envía SMS al usuario             │
+│  - Alerta al equipo de seguridad    │
+└─────────────────────────────────────┘
+```
+
+**Todo esto pasa en < 5 segundos** mientras el usuario aún está en la tienda.
+
+**Ventajas:**
+- ✅ **Respuesta inmediata:** Acción en segundos
+- ✅ **Experiencia de usuario mejorada:** Dashboards que se actualizan solos
+- ✅ **Detecta problemas rápido:** Alertas en tiempo real
+- ✅ **Datos siempre frescos:** No hay "datos de ayer"
+
+**Desventajas:**
+- ❌ **Más complejo:** Requiere arquitectura especializada
+- ❌ **Más costoso:** Recursos corriendo 24/7
+- ❌ **Más difícil de debuggear:** Los eventos ya pasaron, no puedes "pausar"
+- ❌ **Requiere más monitoreo:** Debe estar siempre funcionando
+
+### Casos de Uso Típicos:
+
+- 🚨 **Detección de fraude en tiempo real**
+  - Tarjetas de crédito
+  - Transacciones bancarias
+  
+- 📱 **Recomendaciones instantáneas**
+  - "Usuarios que vieron esto también vieron..."
+  - Personalización de contenido en tiempo real
+  
+- 📊 **Dashboards en vivo**
+  - Ventas actuales (últimos 5 minutos)
+  - Tráfico del sitio web en tiempo real
+  
+- 🔔 **Alertas y notificaciones**
+  - Sistema caído → alerta inmediata
+  - Inventario bajo → notificar a compras
+  
+- 🌡️ **IoT y sensores**
+  - Monitoreo de temperatura en tiempo real
+  - Detección de fallas en maquinaria
+
+### Herramientas Comunes:
+
+- **Databricks Structured Streaming**
+- **Apache Kafka** (event streaming)
+- **Azure Event Hubs**
+- **Apache Flink**
+- **Spark Streaming**
+
+---
+
+## Tabla Comparativa Completa
+
+| Aspecto | Batch | Streaming |
+|---------|-------|-----------|
+| **¿Cuándo se ejecuta?** | Horarios programados (cron) | Continuamente (24/7) |
+| **Latencia** | Horas a días | Segundos a milisegundos |
+| **Volumen por ejecución** | Alto (millones de registros) | Bajo (eventos individuales) |
+| **Datos procesados** | Históricos (ayer, semana pasada) | En vivo (ahora mismo) |
+| **Complejidad** | Baja - Media | Alta |
+| **Costo** | Bajo (solo cuando corre) | Alto (siempre corriendo) |
+| **Debugging** | Fácil (puedes re-ejecutar) | Difícil (eventos ya pasaron) |
+| **Uso de recursos** | Picos altos pero temporales | Uso constante pero moderado |
+| **Ejemplos** | Reportes EOD, ETL nocturno | Fraude, alertas, dashboards RT |
+
+---
+
+## ¿Cómo Decidir? - Árbol de Decisión
+```
+¿Necesitas la información AHORA (< 1 minuto)?
+│
+├─ SÍ → ¿Es crítico para el negocio actuar inmediatamente?
+│       │
+│       ├─ SÍ → STREAMING
+│       │       Ejemplos: 
+│       │       - Detección de fraude
+│       │       - Alertas de sistema caído
+│       │       - Recomendaciones en vivo
+│       │
+│       └─ NO → BATCH (con ejecuciones frecuentes)
+│               Ejemplo: Dashboard que se actualiza cada 15 min
+│
+└─ NO → ¿Los datos pueden esperar horas/días?
+        │
+        ├─ SÍ → BATCH
+        │       Ejemplos:
+        │       - Reportes diarios
+        │       - ETL nocturno
+        │       - Análisis histórico
+        │
+        └─ NO → MICRO-BATCH o STREAMING con ventanas
+                Ejemplo: Dashboard que se actualiza cada 5 minutos
+```
+
+---
+
+## Arquitecturas Híbridas (Lambda Architecture)
+
+En la práctica, **muchas empresas usan AMBOS** en paralelo:
+```
+                    Fuente de Datos (ej: Ventas)
+                            ↓
+                    ┌───────┴───────┐
+                    ↓               ↓
+            STREAMING PATH      BATCH PATH
+                    ↓               ↓
+          ┌─────────────────┐  ┌─────────────────┐
+          │ Kafka/Event Hub │  │ Bronze Layer    │
+          │ Procesa eventos │  │ Acumula datos   │
+          │ en tiempo real  │  │ del día         │
+          └────────┬────────┘  └────────┬────────┘
+                   ↓                     ↓
+          ┌─────────────────┐  ┌─────────────────┐
+          │ Tabla STREAM    │  │ Job programado  │
+          │ Datos últimos   │  │ 01:00 AM        │
+          │ 5 minutos       │  │ Procesa todo    │
+          └────────┬────────┘  └────────┬────────┘
+                   ↓                     ↓
+          ┌─────────────────┐  ┌─────────────────┐
+          │ Dashboard VIVO  │  │ Tabla histórica │
+          │ "Ventas ahora"  │  │ "Ventas ayer"   │
+          └─────────────────┘  └─────────────────┘
+```
+
+### Ejemplo Real - Dashboard de Ventas:
+
+**Pantalla 1 (Streaming):**
+- "Ventas últimos 5 minutos: $12,450"
+- "Transacciones en curso: 47"
+- Actualización: Cada 10 segundos
+
+**Pantalla 2 (Batch):**
+- "Ventas totales ayer: $1,245,890"
+- "Comparación vs mes pasado: +15%"
+- Actualización: Una vez al día (01:00 AM)
+
+---
+
+## En este Curso: ¿Qué Usaremos?
+
+### Módulo 3-4: Principalmente BATCH
+- Aprenderemos a crear pipelines Bronze → Silver → Gold
+- Jobs programados con Databricks
+- Procesamiento de grandes volúmenes
+
+### Módulo 5: Introducción a STREAMING
+- Structured Streaming en Databricks
+- Procesamiento de eventos en tiempo real
+- Casos de uso híbridos
+
+**Razón:** El 80% de los trabajos de Data Engineering en el mundo real 
+son **Batch**. Streaming es más especializado y se usa cuando realmente 
+se necesita.
+
+---
+
+## Conclusión
+
+La decisión entre Batch y Streaming no es "uno u otro", sino **"cuándo usar 
+cada uno"**.
+
+**Regla de oro:**
+- ✅ **Batch por defecto** → Simple, económico, suficiente para mayoría de casos
+- ✅ **Streaming solo cuando sea necesario** → Cuando tiempo real es crítico
+
+La mayoría de sistemas modernos usan **ambos en paralelo**, procesando lo 
+crítico en streaming y lo demás en batch.
+```
