@@ -2,7 +2,7 @@
 ## RetailCorp Chile - Propuesta Técnica
 
 **Autor:** César Palma  
-**Fecha:** 2 de Diciembre, 2024  
+**Fecha:** 2 de Diciembre, 2025  
 **Versión:** 1.0
 
 ---
